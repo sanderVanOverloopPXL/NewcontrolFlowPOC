@@ -1,0 +1,88 @@
+<div>
+  <h1>Todo App - New Control Flow</h1>
+
+  <div class="controls">
+    <input [(ngModel)]="newTodo" placeholder="Add new task" />
+    <button (click)="addTodo()">Add</button>
+    <button (click)="addHundredTodos()">Add 300 Items</button>
+    @if (newTodo.length > 20) {
+      <p style="color: orange;">Description is quite long</p>
+    }
+  </div>
+
+  <div class="filters">
+    <h3>Filter Tasks:</h3>
+    @for (option of ['all', 'completed', 'pending']; track option) {
+      <label>
+        <input type="radio" name="filter" [value]="option" [(ngModel)]="filter" /> {{ option }}
+      </label>
+    }
+  </div>
+
+  <div class="view-switch">
+    <button (click)="view = 'list'">📝 List View</button>
+    <button (click)="view = 'stats'">📊 Stats View</button>
+  </div>
+
+  @switch(view) {
+    @case('list') {
+      <div class="todo-list">
+        @if (filteredTodos().length > 10) {
+          <div class="alert">⚠ Too many tasks, consider completing some!</div>
+        }
+
+        <section>
+          <h3>Pending Tasks</h3>
+          <ul>
+            @for (todo of filteredTodos(); track todo.id) {
+              @if (!todo.completed) {
+                <li>
+                  {{ todo.text }}
+                  <button (click)="toggleComplete(todo.id)">✔</button>
+                  <button (click)="deleteTodo(todo.id)">✖</button>
+                </li>
+              }
+            }
+          </ul>
+          @if (pendingFilteredCount() === 0) {
+            <p>🎉 All caught up!</p>
+          }
+        </section>
+
+        <section>
+          <h3>Completed Tasks</h3>
+          <ul>
+            @for ( todo of filteredTodos(); track todo.id) {
+              @if (todo.completed) {
+                <li>
+                  <span style="text-decoration: line-through">{{ todo.text }}</span>
+                  <button (click)="toggleComplete(todo.id)">⏪</button>
+                  <button (click)="deleteTodo(todo.id)">🗑</button>
+                </li>
+              }
+            }
+          </ul>
+          @if (completedFilteredCount() === 0) {
+            <p>No completed tasks yet.</p>
+          }
+        </section>
+
+        @if (todos.length > 0) {
+          <section>
+            <h4>🆕 Recently Added:</h4>
+            <p>{{ todos[todos.length - 1].text }}</p>
+          </section>
+        }
+      </div>
+    }
+
+    @case('stats') {
+      <div class="stats">
+        <h3>📈 Task Summary</h3>
+        <p>Total Tasks: <span class="badge">{{ todos.length }}</span></p>
+        <p>Completed: <span class="badge badge-green">{{ completedCount() }}</span></p>
+        <p>Pending: <span class="badge badge-red">{{ pendingCount() }}</span></p>
+      </div>
+    }
+  }
+</div>
